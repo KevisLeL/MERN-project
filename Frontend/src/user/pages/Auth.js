@@ -3,8 +3,11 @@ import { useForm } from '../../Shared/hooks/form-hooks';
 
 import Input from '../../Shared/components/FormElements/Input';
 import Button from '../../Shared/components/FormElements/Button';
-import { VALIDATOR_MINLENGTH, VALIDATOR_EMAIL, VALIDATOR_MAXLENGTH, VALIDATOR_REQUIRE } from '../../Shared/util/validators';
+import ErrorModal from '../../Shared/components/UIElements/ErrorModal';
+import LoadingSpinner from '../../Shared/components/UIElements/LoadingSpinner';
+import { VALIDATOR_MINLENGTH, VALIDATOR_EMAIL, VALIDATOR_REQUIRE } from '../../Shared/util/validators';
 import Card from '../../Shared/components/UIElements/Card';
+import { useHttpClient } from '../../Shared/hooks/http-hook';
 import { AuthContext } from '../../Shared/context/auth-context';
 
 import './Auth.css';
@@ -12,6 +15,8 @@ import './Auth.css';
 const Auth = () => {
   const auth = useContext(AuthContext);
   const [isLoginMode, setIsLoginMode] = useState(true);
+ const { isLoading, error, sendRequest, clearError } = useHttpClient();
+   
 
   const [formState, inputHandler, setFormData] = useForm(
     {
@@ -48,14 +53,50 @@ const Auth = () => {
     setIsLoginMode(prevMode => !prevMode);
   };
       
-  const authSubmitHandler = event => {
+  const authSubmitHandler = async event => {
     event.preventDefault();
-    console.log(formState.inputs);
-    auth.login();
-  };
     
+    if (isLoginMode) {
+      try {
+       const responseData = await sendRequest(
+          "http://localhost:5000/api/users/login",
+          "POST",
+          JSON.stringify({
+            email: formState.inputs.email.value,
+            password: formState.inputs.password.value,
+          }),
+          {
+            "Content-Type": "application/json",
+          }
+        );
+        auth.login(responseData.user.id);
+      } catch (err) {};
+  
+    } else {
+      try {
+        const responseData = await sendRequest(
+         "http://localhost:5000/api/users/signup",
+         "POST",
+         JSON.stringify({
+           name: formState.inputs.name.value,
+           email: formState.inputs.email.value,
+           password: formState.inputs.password.value,
+         }),
+         {
+           "Content-Type": "application/json",
+         }
+       );
+        
+        auth.login(responseData.user.id);
+      } catch (err) {}
+    }
+  };
+
   return (
+    <React.Fragment>
+      <ErrorModal error={error} onClear={clearError}/>
     <Card className="authentication">
+      {isLoading && <LoadingSpinner asOverlay/>}
       <h2>LOGIN REQUIRED</h2>
       <hr />
       <form onSubmit={authSubmitHandler}>
@@ -85,8 +126,8 @@ const Auth = () => {
           element="input"
           type="password"
           label="Password"
-          validators={[VALIDATOR_MAXLENGTH(10), VALIDATOR_MINLENGTH(5)]}
-          errorText="Please enter a valid password (min. 5 characters, max 10)."
+          validators={[VALIDATOR_MINLENGTH(6)]}
+          errorText="Please enter a valid password (min. 6 characters)."
           onInput={inputHandler}
           
         />
@@ -98,6 +139,7 @@ const Auth = () => {
         SWITCH TO {isLoginMode ? "SIGN UP" : "LOG IN"}
       </Button>
     </Card>
+    </React.Fragment>
   );
   };
 
