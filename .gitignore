@@ -5,8 +5,8 @@
 /Frontend/.pnp
 /Frontend/.pnp.js
 /Backend/node_modules
-/Backend/nodemon.js
-/Backend/uploads.js
+/Backend/nodemon.json
+/Backend/uploads
 /Backend/uploads/images.js
 
 
