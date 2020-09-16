@@ -47,7 +47,7 @@ app.use((error, req, res, next) => {
 
 
 mongoose
-  .connect("mongodb://localhost:27017/Mern", { useNewUrlParser: true })
+  .connect(`mongodb://${process.env.DB_NAME}/${process.env.DB_COLLECTION}`, { useNewUrlParser: true })
   .then(() => {
     app.listen(5000);
     console.log("Connected to database");

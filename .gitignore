@@ -5,6 +5,9 @@
 /Frontend/.pnp
 /Frontend/.pnp.js
 /Backend/node_modules
+/Backend/nodemon.js
+/Backend/uploads.js
+/Backend/uploads/images.js
 
 
 # testing
@@ -23,4 +26,5 @@
 /Frontend/npm-debug.log*
 /Frontend/yarn-debug.log*
 /Frontend/yarn-error.log*
-Backend/util/location.js
+
+
